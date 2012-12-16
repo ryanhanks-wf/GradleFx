@@ -16,22 +16,15 @@
 
 package org.gradlefx.ide.tasks
 
+import org.gradle.api.Project
 
-class IdeaProject extends AbstractIDEProject {
-    public static final String NAME = 'idea'
 
-    public IdeaProject() {
-        super('IntelliJ IDEA')
-    }
+class IdeaUtil {
+    public static final String projectFolder = '.idea'
+    public static final String module = '.iml'
 
-    @Override
-    protected void invalidateConventions() {
-        // TODO Auto-generated method stub
-    }
-
-    @Override
-    protected void createProjectConfig() {
-        throw new Exception('TODO implement IdeaProject')
+    public String getOutputDir(Project project) {
+        return 'out'
     }
 
 }
