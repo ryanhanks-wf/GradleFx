@@ -9,8 +9,7 @@ import org.gradle.plugins.ide.idea.GenerateIdeaModule
 import org.gradle.plugins.ide.idea.GenerateIdeaProject
 import org.gradle.plugins.ide.idea.GenerateIdeaWorkspace
 import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
-import org.gradle.testfixtures.ProjectBuilder
-import org.gradlefx.util.TemporaryFolder
+import org.gradlefx.util.HelperUtil
 import spock.lang.Specification
 
 /**
@@ -23,9 +22,9 @@ import spock.lang.Specification
 class IdeaPluginTest extends Specification {
 
 
-    private final DefaultProject project = Helper.createRootProject();
+    private final DefaultProject project = HelperUtil.createRootProject();
 
-    private final Project childProject = Helper.createChildProject(project, "child", new File("."))
+    private final Project childProject = HelperUtil.createChildProject(project, "child", new File("."))
 
     def "adds 'ideaProject' task to root project"() {
         when:
@@ -151,24 +150,3 @@ class IdeaPluginTest extends Specification {
     }
 }
 
-class Helper {
-    static DefaultProject createRootProject() {
-        createRootProject(TemporaryFolder.newInstance().dir)
-    }
-
-    static DefaultProject createRootProject(File rootDir) {
-        return ProjectBuilder
-                .builder()
-                .withProjectDir(rootDir)
-                .build()
-    }
-
-    static DefaultProject createChildProject(DefaultProject parent, String name, File projectDir = null) {
-        return ProjectBuilder
-                .builder()
-                .withName(name)
-                .withParent(parent)
-                .withProjectDir(projectDir)
-                .build();
-    }
-}
