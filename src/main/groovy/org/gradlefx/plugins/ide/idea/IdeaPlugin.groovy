@@ -32,6 +32,7 @@ import org.gradle.plugins.ide.idea.model.IdeaProject
 import org.gradle.plugins.ide.idea.model.IdeaWorkspace
 import org.gradle.plugins.ide.idea.model.PathFactory
 import org.gradle.plugins.ide.internal.IdePlugin
+import org.gradlefx.plugins.GradleFxPlugin
 import org.gradlefx.plugins.ide.idea.model.IdeaModule
 
 import javax.inject.Inject
@@ -60,7 +61,7 @@ class IdeaPlugin extends IdePlugin {
         configureIdeaWorkspace(project)
         configureIdeaProject(project)
         configureIdeaModule(project)
-        configureForJavaPlugin(project)
+        configureForGradleFxPlugin(project)
 
         hookDeduplicationToTheRoot(project)
 
@@ -134,14 +135,14 @@ class IdeaPlugin extends IdePlugin {
     }
 
 
-    private configureForJavaPlugin(Project project) {
-        project.plugins.withType(JavaPlugin) {
-            configureIdeaProjectForJava(project)
-            configureIdeaModuleForJava(project)
+    private configureForGradleFxPlugin(Project project) {
+        project.plugins.withType(GradleFxPlugin) {
+            configureIdeaProjectForGradleFx(project)
+            configureIdeaModuleForGradleFx(project)
         }
     }
 
-    private configureIdeaProjectForJava(Project project) {
+    private configureIdeaProjectForGradleFx(Project project) {
         if (isRoot(project)) {
             project.idea.project.conventionMapping.languageLevel = {
                 new IdeaLanguageLevel(project.sourceCompatibility)
@@ -149,7 +150,7 @@ class IdeaPlugin extends IdePlugin {
         }
     }
 
-    private configureIdeaModuleForJava(Project project) {
+    private configureIdeaModuleForGradleFx(Project project) {
         project.ideaModule {
             module.conventionMapping.sourceDirs = { project.sourceSets.main.allSource.srcDirs as LinkedHashSet }
             module.conventionMapping.testSourceDirs = { project.sourceSets.test.allSource.srcDirs as LinkedHashSet }
@@ -202,12 +203,7 @@ class IdeaPlugin extends IdePlugin {
     }
 
 
-    private configureForGradleFxPlugin(Project project) {
-        project.plugins.withType(GradleFxPlugin) {
-            println "configuring project: !!!!!!!!!!!!!!"
-//            configureIdeaModuleForGradleFx(project)
-        }
-    }
+
 
     void hookDeduplicationToTheRoot(Project project) {
         if (isRoot(project)) {
