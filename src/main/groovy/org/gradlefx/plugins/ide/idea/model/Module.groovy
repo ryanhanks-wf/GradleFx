@@ -1,6 +1,7 @@
 package org.gradlefx.plugins.ide.idea.model
 
 import org.gradle.api.internal.xml.XmlTransformer
+import org.gradle.internal.UncheckedException
 import org.gradle.plugins.ide.idea.model.Dependency
 import org.gradle.plugins.ide.idea.model.JarDirectory
 import org.gradle.plugins.ide.idea.model.Module
@@ -82,8 +83,38 @@ class Module extends XmlPersistableConfigurationObject {
         this.pathFactory = pathFactory
     }
 
+    @Override
+    public void loadDefaults() {
+        InputStream xml = new ByteArrayInputStream(('<?xml version="1.0" encoding="UTF-8"?>\n' +
+                '<module relativePaths="true" type="Flex" version="4">\n' +
+                '    <component name="NewModuleRootManager" inherit-compiler-output="true">\n' +
+                '        <exclude-output/>\n' +
+                '        <orderEntry type="inheritedJdk"/>\n' +
+                '        <content url="file://$MODULE_DIR$">\n' +
+                '        </content>\n' +
+                '        <orderEntry type="sourceFolder" forTests="false"/>\n' +
+                '    </component>\n' +
+                '    <component name="ModuleRootManager"/>\n' +
+                '</module>').getBytes());
+
+        try {
+//            String defaultResourceName = getDefaultResourceName();
+            InputStream inputStream = xml; //getClass().getClassLoader().getResourceAsStream(defaultResourceName);
+            if (inputStream == null) {
+                throw new IllegalStateException(String.format("Failed to load default resource '%s' of persistable configuration object of type '%s' (resource not found)", defaultResourceName, getClass().getName()));
+            }
+            try {
+                load(inputStream);
+            } finally {
+                inputStream.close();
+            }
+        } catch (Exception e) {
+            throw UncheckedException.throwAsUncheckedException(e);
+        }
+    }
+
     @Override protected String getDefaultResourceName() {
-        return 'defaultModule.xml'
+        return 'flexModule.xml'
     }
 
     @Override protected void load(Node xml) {
