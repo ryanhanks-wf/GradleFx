@@ -21,7 +21,6 @@ import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.internal.reflect.Instantiator
 import org.gradle.plugins.ide.api.XmlFileContentMerger
-import org.gradle.plugins.ide.idea.GenerateIdeaModule
 import org.gradle.plugins.ide.idea.GenerateIdeaProject
 import org.gradle.plugins.ide.idea.GenerateIdeaWorkspace
 import org.gradle.plugins.ide.idea.internal.IdeaNameDeduper
@@ -152,14 +151,17 @@ class IdeaPlugin extends IdePlugin {
 
     private configureIdeaModuleForGradleFx(Project project) {
         project.ideaModule {
-            module.conventionMapping.sourceDirs = { project.sourceSets.main.allSource.srcDirs as LinkedHashSet }
+            module.conventionMapping.sourceDirs = { project.srcDirs as LinkedHashSet }
             module.conventionMapping.testSourceDirs = { project.sourceSets.test.allSource.srcDirs as LinkedHashSet }
             def configurations = project.configurations
             module.scopes = [
                     PROVIDED: [plus: [], minus: []],
-                    COMPILE: [plus: [configurations.compile], minus: []],
-                    RUNTIME: [plus: [configurations.runtime], minus: [configurations.compile]],
-                    TEST: [plus: [configurations.testRuntime], minus: [configurations.runtime]]
+                    COMPILE: [plus: [], minus: []],
+                    RUNTIME: [plus: [], minus: []],
+                    TEST: [plus: [], minus: []]
+//                    COMPILE: [plus: [configurations.compile], minus: []],
+//                    RUNTIME: [plus: [configurations.runtime], minus: [configurations.compile]],
+//                    TEST: [plus: [configurations.testRuntime], minus: [configurations.runtime]]
             ]
             module.conventionMapping.singleEntryLibraries = {
                 [
@@ -168,7 +170,7 @@ class IdeaPlugin extends IdePlugin {
                 ]
             }
             dependsOn {
-                project.sourceSets.main.output.dirs + project.sourceSets.test.output.dirs
+//                project.sourceSets.main.output.dirs + project.sourceSets.test.output.dirs
             }
         }
     }
