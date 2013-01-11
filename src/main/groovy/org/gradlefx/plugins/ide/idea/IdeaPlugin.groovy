@@ -143,35 +143,25 @@ class IdeaPlugin extends IdePlugin {
 
     private configureIdeaProjectForGradleFx(Project project) {
         if (isRoot(project)) {
-            project.idea.project.conventionMapping.languageLevel = {
-                new IdeaLanguageLevel(project.sourceCompatibility)
-            }
+//            project.idea.project.conventionMapping.languageLevel = {
+//                new IdeaLanguageLevel(project.sourceCompatibility)
+//            }
         }
     }
 
     private configureIdeaModuleForGradleFx(Project project) {
         project.ideaModule {
-            module.conventionMapping.sourceDirs = { project.srcDirs as LinkedHashSet }
-            module.conventionMapping.testSourceDirs = { project.sourceSets.test.allSource.srcDirs as LinkedHashSet }
+            module.conventionMapping.sourceDirs = { project.files(project.srcDirs).getFiles() }
+            module.conventionMapping.testSourceDirs = { project.files(project.testDirs).files }
             def configurations = project.configurations
-            module.scopes = [
-                    PROVIDED: [plus: [], minus: []],
-                    COMPILE: [plus: [], minus: []],
-                    RUNTIME: [plus: [], minus: []],
-                    TEST: [plus: [], minus: []]
-//                    COMPILE: [plus: [configurations.compile], minus: []],
-//                    RUNTIME: [plus: [configurations.runtime], minus: [configurations.compile]],
-//                    TEST: [plus: [configurations.testRuntime], minus: [configurations.runtime]]
-            ]
-            module.conventionMapping.singleEntryLibraries = {
-                [
-                        RUNTIME: project.sourceSets.main.output.dirs,
-                        TEST: project.sourceSets.test.output.dirs
-                ]
-            }
-            dependsOn {
-//                project.sourceSets.main.output.dirs + project.sourceSets.test.output.dirs
-            }
+//            module.scopes = [:]
+//            module.conventionMapping.singleEntryLibraries = {
+//                [:]
+//            }
+//            dependsOn {
+//                [:]
+////                project.sourceSets.main.output.dirs + project.sourceSets.test.output.dirs
+//            }
         }
     }
 
