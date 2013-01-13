@@ -2,7 +2,10 @@ package org.gradlefx.plugins.ide.idea.model
 
 import org.gradle.api.internal.xml.XmlTransformer
 import org.gradle.internal.UncheckedException
-import org.gradle.plugins.ide.idea.model.*
+import org.gradle.plugins.ide.idea.model.Dependency
+import org.gradle.plugins.ide.idea.model.JarDirectory
+import org.gradle.plugins.ide.idea.model.ModuleDependency
+import org.gradle.plugins.ide.idea.model.Path
 import org.gradle.plugins.ide.internal.generator.XmlPersistableConfigurationObject
 import org.gradle.util.DeprecationLogger
 
@@ -330,7 +333,7 @@ class Module extends XmlPersistableConfigurationObject {
 
         if (getClass() != o.class) { return false }
 
-        org.gradlefx.plugins.ide.idea.model.Module module = (org.gradlefx.plugins.ide.idea.model.Module) o
+        Module module = (Module) o
 
         if (dependencies != module.dependencies) { return false }
         if (excludeFolders != module.excludeFolders) { return false }
