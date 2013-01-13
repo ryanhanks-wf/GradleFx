@@ -2,13 +2,7 @@ package org.gradlefx.plugins.ide.idea.model
 
 import org.gradle.api.internal.xml.XmlTransformer
 import org.gradle.internal.UncheckedException
-import org.gradle.plugins.ide.idea.model.Dependency
-import org.gradle.plugins.ide.idea.model.JarDirectory
-import org.gradle.plugins.ide.idea.model.Module
-import org.gradle.plugins.ide.idea.model.ModuleDependency
-import org.gradle.plugins.ide.idea.model.ModuleLibrary
-import org.gradle.plugins.ide.idea.model.Path
-import org.gradle.plugins.ide.idea.model.PathFactory
+import org.gradle.plugins.ide.idea.model.*
 import org.gradle.plugins.ide.internal.generator.XmlPersistableConfigurationObject
 import org.gradle.util.DeprecationLogger
 
@@ -87,6 +81,10 @@ class Module extends XmlPersistableConfigurationObject {
     public void loadDefaults() {
         InputStream xml = new ByteArrayInputStream(('<?xml version="1.0" encoding="UTF-8"?>\n' +
                 '<module relativePaths="true" type="Flex" version="4">\n' +
+                '  <component name="FlexBuildConfigurationManager">\n' +
+                '    <configurations />\n' +
+                '    <compiler-options />\n' +
+                '  </component>' +
                 '    <component name="NewModuleRootManager" inherit-compiler-output="true">\n' +
                 '        <exclude-output/>\n' +
                 '        <orderEntry type="inheritedJdk"/>\n' +
@@ -118,7 +116,6 @@ class Module extends XmlPersistableConfigurationObject {
     }
 
     @Override protected void load(Node xml) {
-        println "load"
         readJdkFromXml()
         readSourceAndExcludeFolderFromXml()
         readInheritOutputDirsFromXml()
@@ -159,17 +156,17 @@ class Module extends XmlPersistableConfigurationObject {
         return findOrderEntries().each { orderEntry ->
             switch (orderEntry.@type) {
                 case "module-library":
-                    Set classes = orderEntry.library.CLASSES.root.collect {
+                    Set swcs = orderEntry.library.CLASSES.root.grep{ it.'@url'.startsWith('jar')}.collect {
                         pathFactory.path(it.@url)
                     }
-                    Set javadoc = orderEntry.library.JAVADOC.root.collect {
+                    Set asdoc = orderEntry.library.JAVADOC.root.collect {
                         pathFactory.path(it.@url)
                     }
                     Set sources = orderEntry.library.SOURCES.root.collect {
                         pathFactory.path(it.@url)
                     }
-                    Set jarDirectories = orderEntry.library.jarDirectory.collect { new JarDirectory(pathFactory.path(it.@url), Boolean.parseBoolean(it.@recursive)) }
-                    def moduleLibrary = new ModuleLibrary(classes, javadoc, sources, jarDirectories, orderEntry.@scope)
+                    Set swcDirectories = orderEntry.library.jarDirectory.collect { new JarDirectory(pathFactory.path(it.@url), Boolean.parseBoolean(it.@recursive)) }
+                    def moduleLibrary = new ModuleLibrary(swcs, asdoc, sources, swcDirectories)
                     dependencies.add(moduleLibrary)
                     break
                 case "module":

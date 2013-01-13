@@ -17,8 +17,9 @@ package org.gradlefx.plugins.ide.idea.model
 
 import org.gradle.api.JavaVersion
 import org.gradle.api.internal.xml.XmlTransformer
-import org.gradlefx.plugins.ide.idea.model.*
-import org.gradle.plugins.ide.idea.model.*
+import org.gradle.plugins.ide.idea.model.JarDirectory
+import org.gradle.plugins.ide.idea.model.ModuleDependency
+import org.gradle.plugins.ide.idea.model.Path
 import spock.lang.Specification
 
 /**
@@ -27,16 +28,16 @@ import spock.lang.Specification
 class ModuleTest extends Specification {
     final PathFactory pathFactory = new PathFactory()
     final XmlTransformer xmlTransformer = new XmlTransformer()
-    final customSourceFolders = [path('file://$MODULE_DIR$/src')] as LinkedHashSet
-    final customTestSourceFolders = [path('file://$MODULE_DIR$/srcTest')] as LinkedHashSet
-    final customExcludeFolders = [path('file://$MODULE_DIR$/target')] as LinkedHashSet
+    final customSourceFolders = [path('file://$MODULE_DIR$/src/main/actionscript')] as LinkedHashSet
+    final customTestSourceFolders = [path('file://$MODULE_DIR$/src/test/actionscript')] as LinkedHashSet
+    final customExcludeFolders = [path('file://$MODULE_DIR$/build'),path('file://$MODULE_DIR$/.gradle')] as LinkedHashSet
     final customDependencies = [
-            new ModuleLibrary([path('file://$MODULE_DIR$/gradle/lib')] as Set,
-                    [path('file://$MODULE_DIR$/gradle/javadoc')] as Set, [path('file://$MODULE_DIR$/gradle/src')] as Set,
-                    [] as Set, null),
-            new ModuleLibrary([path('file://$MODULE_DIR$/ant/lib'), path('jar://$GRADLE_CACHE$/gradle.jar!/')] as Set, [] as Set, [] as Set,
-                    [new JarDirectory(path('file://$MODULE_DIR$/ant/lib'), false)] as Set, "RUNTIME"),
-            new ModuleDependency('someModule', null)]
+            new ModuleLibrary(
+                    [path('jar://$MODULE_DIR$/lib/flexunit-4.1.0-8-flex_4.1.0.16076.swc!/')] as Set<Path>,
+                    [] as Set<Path>,
+                    [] as Set<Path>,
+                    [new JarDirectory(path('file://$MODULE_DIR$/lib'), false)] as Set<JarDirectory>)
+    ]
 
     Module module = new Module(xmlTransformer, pathFactory)
 
@@ -45,12 +46,12 @@ class ModuleTest extends Specification {
         module.load(customModuleReader)
 
         then:
-        module.jdkName == "1.6"
+        module.jdkName == "4.5.1.21328"
         module.sourceFolders == customSourceFolders
         module.testSourceFolders == customTestSourceFolders
         module.excludeFolders == customExcludeFolders
-        module.outputDir == path('file://$MODULE_DIR$/out')
-        module.testOutputDir == path('file://$MODULE_DIR$/outTest')
+//        module.outputDir == path('file://$MODULE_DIR$/out')  // this is only on the build config
+//        module.testOutputDir == path('file://$MODULE_DIR$/outTest') // this doesn't exist
         (module.dependencies as List) == customDependencies
     }
 

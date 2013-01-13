@@ -18,21 +18,16 @@ package org.gradlefx.plugins.ide.idea
 
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
-import org.gradle.api.plugins.JavaPlugin
 import org.gradle.internal.reflect.Instantiator
 import org.gradle.plugins.ide.api.XmlFileContentMerger
 import org.gradle.plugins.ide.idea.GenerateIdeaProject
 import org.gradle.plugins.ide.idea.GenerateIdeaWorkspace
 import org.gradle.plugins.ide.idea.internal.IdeaNameDeduper
-import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
-import org.gradle.plugins.ide.idea.model.IdeaModel
-import org.gradle.plugins.ide.idea.model.IdeaModuleIml
-import org.gradle.plugins.ide.idea.model.IdeaProject
-import org.gradle.plugins.ide.idea.model.IdeaWorkspace
-import org.gradle.plugins.ide.idea.model.PathFactory
+import org.gradle.plugins.ide.idea.model.*
 import org.gradle.plugins.ide.internal.IdePlugin
 import org.gradlefx.plugins.GradleFxPlugin
 import org.gradlefx.plugins.ide.idea.model.IdeaModule
+import org.gradlefx.plugins.ide.idea.model.PathFactory
 
 import javax.inject.Inject
 
