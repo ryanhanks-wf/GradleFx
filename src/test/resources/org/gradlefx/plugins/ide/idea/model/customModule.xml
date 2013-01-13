@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module relativePaths="true" type="Flex" version="4">
-    <component name="FlexBuildConfigurationManager" active="sample_project_">
+    <component name="FlexBuildConfigurationManager" active="build_config_1">
         <configurations>
-            <configuration name="sample_project_" output-type="Library" output-file=".swc" output-folder="$MODULE_DIR$/idea-build">
+            <configuration name="build_config_1" output-type="Library" output-file="build_1.swc" output-folder="$MODULE_DIR$/idea-build">
                 <dependencies target-player="10.2">
+                    <entries>
+                        <entry library-id="fff44344-f747-4fc1-9407-41f0833214bc">
+                            <dependency linkage="Merged" />
+                        </entry>
+                    </entries>
                     <sdk name="4.5.1.21328" />
                 </dependencies>
                 <compiler-options />

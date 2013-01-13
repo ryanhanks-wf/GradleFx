@@ -20,6 +20,7 @@ import org.gradle.api.internal.xml.XmlTransformer
 import org.gradle.plugins.ide.idea.model.JarDirectory
 import org.gradle.plugins.ide.idea.model.ModuleDependency
 import org.gradle.plugins.ide.idea.model.Path
+import org.gradlefx.conventions.FlexType
 import spock.lang.Specification
 
 /**
@@ -38,6 +39,15 @@ class ModuleTest extends Specification {
                     [] as Set<Path>,
                     [new JarDirectory(path('file://$MODULE_DIR$/lib'), false)] as Set<JarDirectory>)
     ]
+    final customBuildConfigurations = [
+            new BuildConfiguration(
+                    "build_config_1",
+                    FlexType.swc,
+                    path("build_1.swc"),
+                    path('$MODULE_DIR$/idea-build'),
+                    "4.5.1.21328",
+                    "10.2",
+                    [:] as LinkedHashSet)] as Set<BuildConfiguration>
 
     Module module = new Module(xmlTransformer, pathFactory)
 
@@ -51,6 +61,7 @@ class ModuleTest extends Specification {
         module.testSourceFolders == customTestSourceFolders
         module.excludeFolders == customExcludeFolders
         (module.dependencies as List) == customDependencies
+        module.buildConfigurations == customBuildConfigurations
     }
 
     def configureOverwritesDependenciesAndAppendsAllOtherEntries() {

@@ -8,6 +8,7 @@ import org.gradle.plugins.ide.idea.model.ModuleDependency
 import org.gradle.plugins.ide.idea.model.Path
 import org.gradle.plugins.ide.internal.generator.XmlPersistableConfigurationObject
 import org.gradle.util.DeprecationLogger
+import org.gradlefx.conventions.FlexType
 
 /**
  * Created with IntelliJ IDEA.
@@ -18,6 +19,9 @@ import org.gradle.util.DeprecationLogger
  */
 class Module extends XmlPersistableConfigurationObject {
     static final String INHERITED = "inherited"
+
+
+
 
     /**
      * The directory for the content root of the module.  Defaults to the project dirctory.
@@ -44,6 +48,9 @@ class Module extends XmlPersistableConfigurationObject {
      * The dependencies of this module. Must not be null.
      */
     Set<Dependency> dependencies = [] as LinkedHashSet
+
+
+    Set<BuildConfiguration> buildConfigurations = [] as LinkedHashSet
 
     String jdkName
 
@@ -96,6 +103,7 @@ class Module extends XmlPersistableConfigurationObject {
         readJdkFromXml()
         readSourceAndExcludeFolderFromXml()
         readDependenciesFromXml()
+        readBuildConfigurationsFromXml()
     }
 
     private readJdkFromXml() {
@@ -138,6 +146,46 @@ class Module extends XmlPersistableConfigurationObject {
             }
         }
     }
+
+    final Logger logger = LoggerFactory.getLogger("ROOT")
+
+    private readBuildConfigurationsFromXml() {
+        findBuildConfigurations().each { configuration ->
+            println configuration
+            String name = configuration.@name
+            FlexType flexType
+            switch (configuration.'@output-type'){
+                case "Library":
+                    flexType = FlexType.swc
+                    break
+            }
+            Path outputFile = pathFactory.path(configuration.'@output-file')
+            Path outputDir = pathFactory.path(configuration.'@output-folder')
+            Node dependencies = configuration.dependencies[0]
+            String targetPlayer = dependencies.'@target-player'
+            String flexSdk = dependencies.sdk[0].@name
+            BuildConfiguration buildConfiguration = new BuildConfiguration(
+                    name,
+                    flexType,
+                    outputFile,
+                    outputDir,
+                    flexSdk,
+                    targetPlayer,
+                    [] as LinkedHashSet
+            )
+            buildConfigurations.add(buildConfiguration)
+
+        }
+    }
+
+    private findBuildConfigurations() {
+        findFlexBuildConfigurationManager().configurations.configuration
+    }
+
+    private Node findFlexBuildConfigurationManager(){
+        xml.component.find { it.@name == 'FlexBuildConfigurationManager'}
+    }
+
 
     protected def configure(Path contentPath, Set sourceFolders, Set testSourceFolders, Set excludeFolders,
                             Set dependencies, String jdkName) {
@@ -242,10 +290,6 @@ class Module extends XmlPersistableConfigurationObject {
 
     private Node findNewModuleRootManager() {
         xml.component.find { it.@name == 'NewModuleRootManager'}
-    }
-
-    private Node findTestOutputDir() {
-        return findNewModuleRootManager().'output-test'[0]
     }
 
     private findOrderEntries() {
