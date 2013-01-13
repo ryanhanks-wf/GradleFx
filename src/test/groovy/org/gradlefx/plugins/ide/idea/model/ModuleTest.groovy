@@ -65,7 +65,7 @@ class ModuleTest extends Specification {
         def constructorTestOutputDir = path('someTestOut')
         def constructorModuleDependencies = [
                 customDependencies[0],
-                new ModuleLibrary([path('x')], [], [], [new JarDirectory(path('y'), false)], null)] as LinkedHashSet
+                new ModuleLibrary([path('x')], [], [], [new JarDirectory(path('y'), false)])] as LinkedHashSet
 
         when:
         module.load(customModuleReader)
@@ -97,7 +97,6 @@ class ModuleTest extends Specification {
 
         then:
         module.jdkName == Module.INHERITED
-        module.inheritOutputDirs
         module.sourceFolders == [] as Set
         module.dependencies.size() == 0
     }

@@ -41,12 +41,6 @@ class Module extends XmlPersistableConfigurationObject {
     Set<Path> excludeFolders = [] as LinkedHashSet
 
     /**
-     * If true, output directories for this module will be located below the output directory for the project;
-     * otherwise, {@link #outputDir} and {@link #testOutputDir} will take effect.
-     */
-    boolean inheritOutputDirs
-
-    /**
      * The output directory for production classes. If {@code null}, no entry will be created.
      */
     Path outputDir
@@ -121,7 +115,6 @@ class Module extends XmlPersistableConfigurationObject {
     @Override protected void load(Node xml) {
         readJdkFromXml()
         readSourceAndExcludeFolderFromXml()
-        readInheritOutputDirsFromXml()
         readOutputDirsFromXml()
         readDependenciesFromXml()
     }
@@ -142,10 +135,6 @@ class Module extends XmlPersistableConfigurationObject {
         findExcludeFolder().each { excludeFolder ->
             excludeFolders.add(pathFactory.path(excludeFolder.@url))
         }
-    }
-
-    private readInheritOutputDirsFromXml() {
-        inheritOutputDirs = findNewModuleRootManager().@"inherit-compiler-output" == "true"
     }
 
     private readOutputDirsFromXml() {
@@ -184,9 +173,6 @@ class Module extends XmlPersistableConfigurationObject {
         this.sourceFolders.addAll(sourceFolders)
         this.testSourceFolders.addAll(testSourceFolders)
         this.excludeFolders.addAll(excludeFolders)
-        if (inheritOutputDirs != null) {
-            this.inheritOutputDirs = inheritOutputDirs
-        }
         if (outputDir) {
             this.outputDir = outputDir
         }
@@ -197,7 +183,7 @@ class Module extends XmlPersistableConfigurationObject {
         if (jdkName) {
             this.jdkName = jdkName
         } else {
-            this.jdkName = org.gradle.plugins.ide.idea.model.Module.INHERITED
+            this.jdkName =Module.INHERITED
         }
     }
 
@@ -206,7 +192,6 @@ class Module extends XmlPersistableConfigurationObject {
         setContentURL()
         removeSourceAndExcludeFolderFromXml()
         addSourceAndExcludeFolderToXml()
-        writeInheritOutputDirsToXml()
         addOutputDirsToXml()
 
         removeDependenciesFromXml()
@@ -237,10 +222,6 @@ class Module extends XmlPersistableConfigurationObject {
         if (contentPath != null) {
             findContent().@url = contentPath.url
         }
-    }
-
-    private writeInheritOutputDirsToXml() {
-        findNewModuleRootManager().@"inherit-compiler-output" = inheritOutputDirs
     }
 
     private addOutputDirsToXml() {
@@ -351,7 +332,6 @@ class Module extends XmlPersistableConfigurationObject {
         result = (sourceFolders != null ? sourceFolders.hashCode() : 0)
         result = 31 * result + (testSourceFolders != null ? testSourceFolders.hashCode() : 0)
         result = 31 * result + (excludeFolders != null ? excludeFolders.hashCode() : 0)
-        result = 31 * result + (inheritOutputDirs != null ? inheritOutputDirs.hashCode() : 0)
         result = 31 * result + outputDir.hashCode()
         result = 31 * result + testOutputDir.hashCode()
         result = 31 * result + (dependencies != null ? dependencies.hashCode() : 0)
@@ -365,7 +345,6 @@ class Module extends XmlPersistableConfigurationObject {
                 ", sourceFolders=" + sourceFolders +
                 ", testSourceFolders=" + testSourceFolders +
                 ", excludeFolders=" + excludeFolders +
-                ", inheritOutputDirs=" + inheritOutputDirs +
                 ", outputDir=" + outputDir +
                 ", testOutputDir=" + testOutputDir +
                 '}'
