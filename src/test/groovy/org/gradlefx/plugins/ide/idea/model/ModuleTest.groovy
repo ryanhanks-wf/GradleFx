@@ -50,8 +50,6 @@ class ModuleTest extends Specification {
         module.sourceFolders == customSourceFolders
         module.testSourceFolders == customTestSourceFolders
         module.excludeFolders == customExcludeFolders
-//        module.outputDir == path('file://$MODULE_DIR$/out')  // this is only on the build config
-//        module.testOutputDir == path('file://$MODULE_DIR$/outTest') // this doesn't exist
         (module.dependencies as List) == customDependencies
     }
 
@@ -59,10 +57,7 @@ class ModuleTest extends Specification {
         def constructorSourceFolders = [path('a')] as Set
         def constructorTestSourceFolders = [path('b')] as Set
         def constructorExcludeFolders = [path('c')] as Set
-        def constructorInheritOutputDirs = false
-        def constructorOutputDir = path('someOut')
         def constructorJavaVersion = JavaVersion.VERSION_1_6.toString()
-        def constructorTestOutputDir = path('someTestOut')
         def constructorModuleDependencies = [
                 customDependencies[0],
                 new ModuleLibrary([path('x')], [], [], [new JarDirectory(path('y'), false)])] as LinkedHashSet
@@ -70,14 +65,12 @@ class ModuleTest extends Specification {
         when:
         module.load(customModuleReader)
         module.configure(null, constructorSourceFolders, constructorTestSourceFolders, constructorExcludeFolders,
-                constructorInheritOutputDirs, constructorOutputDir, constructorTestOutputDir, constructorModuleDependencies, constructorJavaVersion)
+                constructorModuleDependencies, constructorJavaVersion)
 
         then:
         module.sourceFolders == customSourceFolders + constructorSourceFolders
         module.testSourceFolders == customTestSourceFolders + constructorTestSourceFolders
         module.excludeFolders == customExcludeFolders + constructorExcludeFolders
-        module.outputDir == constructorOutputDir
-        module.testOutputDir == constructorTestOutputDir
         module.jdkName == constructorJavaVersion.toString()
         module.dependencies == constructorModuleDependencies
     }
@@ -85,7 +78,7 @@ class ModuleTest extends Specification {
     def "configures default java version"() {
         when:
         module.configure(null, [] as Set, [] as Set, [] as Set,
-                true, null, null, [] as Set, null)
+                [] as Set, null)
 
         then:
         module.jdkName == Module.INHERITED
@@ -103,12 +96,10 @@ class ModuleTest extends Specification {
 
     def generatedXmlShouldContainCustomValues() {
         def constructorSourceFolders = [new Path('a')] as Set
-        def constructorOutputDir = new Path('someOut')
-        def constructorTestOutputDir = new Path('someTestOut')
 
         when:
         module.loadDefaults()
-        module.configure(null, constructorSourceFolders, [] as Set, [] as Set, false, constructorOutputDir, constructorTestOutputDir, [] as Set, null)
+        module.configure(null, constructorSourceFolders, [] as Set, [] as Set, [] as Set, null)
         def xml = toXmlReader
         def newModule = new Module(xmlTransformer, pathFactory)
         newModule.load(xml)

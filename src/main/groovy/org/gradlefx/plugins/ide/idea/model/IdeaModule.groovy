@@ -28,7 +28,7 @@ class IdeaModule extends org.gradle.plugins.ide.idea.model.IdeaModule {
         Set dependencies = resolveDependencies()
 
         xmlModule.configure(contentRoot, sourceFolders, testSourceFolders, excludeFolders,
-                getInheritOutputDirs(), outputDir, testOutputDir, dependencies, getJdkName())
+                dependencies, getJdkName())
 
         iml.whenMerged.execute(xmlModule)
     }
