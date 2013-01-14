@@ -147,8 +147,6 @@ class Module extends XmlPersistableConfigurationObject {
         }
     }
 
-    final Logger logger = LoggerFactory.getLogger("ROOT")
-
     private readBuildConfigurationsFromXml() {
         findBuildConfigurations().each { configuration ->
             println configuration
