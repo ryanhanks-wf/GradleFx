@@ -93,9 +93,12 @@ if(isReleaseBuild) {
 uploadArchives {
     repositories {
         if (isDevBuild) {
+            ivy {
+                ivyPattern "$projectDir/repo/[organisation]/[module]-ivy-[revision].xml"
+                artifactPattern "$projectDir/repo/[organisation]/[module]-[revision](-[classifier]).[ext]"
+            }
             mavenLocal()
-        }
-        else {
+        } else {
             mavenDeployer {
                 if(isReleaseBuild) {
                     beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
