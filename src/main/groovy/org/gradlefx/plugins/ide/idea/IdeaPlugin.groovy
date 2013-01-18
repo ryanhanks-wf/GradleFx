@@ -31,10 +31,7 @@ import org.gradlefx.plugins.ide.idea.model.PathFactory
 
 import javax.inject.Inject
 
-class IdeaPlugin extends IdePlugin {
-
-    private final Instantiator instantiator
-
+class IdeaPlugin extends org.gradle.plugins.ide.idea.IdeaPlugin {
     IdeaModel model
 
     @Inject IdeaPlugin(Instantiator instantiator){
@@ -63,7 +60,7 @@ class IdeaPlugin extends IdePlugin {
 //        configureForGradleFxPlu gin(project)
     }
 
-    private configureIdeaWorkspace(Project project) {
+    protected configureIdeaWorkspace(Project project) {
         if (isRoot(project)) {
             def task = project.task('ideaWorkspace', description: 'Generates an IDEA workspace file (IWS)', type: GenerateIdeaWorkspace) {
                 workspace = new IdeaWorkspace(iws: new XmlFileContentMerger(xmlTransformer))
@@ -74,11 +71,11 @@ class IdeaPlugin extends IdePlugin {
         }
     }
 
-    private boolean isRoot(Project project) {
+    protected boolean isRoot(Project project) {
         return project.parent == null
     }
 
-    private configureIdeaProject(Project project) {
+    protected configureIdeaProject(Project project) {
         if (isRoot(project)) {
             def task = project.task('ideaProject', description: 'Generates IDEA project file (IPR)', type: GenerateIdeaProject) {
                 def ipr = new XmlFileContentMerger(xmlTransformer)
@@ -102,41 +99,41 @@ class IdeaPlugin extends IdePlugin {
         }
     }
 
-    private configureIdeaModule(Project project) {
-        def task = project.task('ideaModule', description: 'Generates IDEA module files (IML)', type: GenerateIdeaModule) {
-            def iml = new IdeaModuleIml(xmlTransformer, project.projectDir)
-            module = instantiator.newInstance(IdeaModule, project, iml)
-
-            model.module = module
-
-            module.conventionMapping.sourceDirs = { [] as LinkedHashSet }
-            module.conventionMapping.name = { project.name }
-            module.conventionMapping.contentRoot = { project.projectDir }
-            module.conventionMapping.testSourceDirs = { [] as LinkedHashSet }
-            module.conventionMapping.excludeDirs = { [project.buildDir, project.file('.gradle')] as LinkedHashSet }
-
-            module.conventionMapping.pathFactory = {
-                PathFactory factory = new PathFactory()
-                factory.addPathVariable('MODULE_DIR', outputFile.parentFile)
-                module.pathVariables.each { key, value ->
-                    factory.addPathVariable(key, value)
-                }
-                factory
-            }
-        }
-
-        addWorker(task)
+    protected configureIdeaModule(Project project) {
+//        def task = project.task('ideaModule', description: 'Generates IDEA module files (IML)', type: GenerateIdeaModule) {
+//            def iml = new IdeaModuleIml(xmlTransformer, project.projectDir)
+//            module = instantiator.newInstance(IdeaModule, project, iml)
+//
+//            model.module = module
+//
+//            module.conventionMapping.sourceDirs = { [] as LinkedHashSet }
+//            module.conventionMapping.name = { project.name }
+//            module.conventionMapping.contentRoot = { project.projectDir }
+//            module.conventionMapping.testSourceDirs = { [] as LinkedHashSet }
+//            module.conventionMapping.excludeDirs = { [project.buildDir, project.file('.gradle')] as LinkedHashSet }
+//
+//            module.conventionMapping.pathFactory = {
+//                PathFactory factory = new PathFactory()
+//                factory.addPathVariable('MODULE_DIR', outputFile.parentFile)
+//                module.pathVariables.each { key, value ->
+//                    factory.addPathVariable(key, value)
+//                }
+//                factory
+//            }
+//        }
+//
+//        addWorker(task)
     }
 
 
-    private configureForGradleFxPlugin(Project project) {
+    protected configureForGradleFxPlugin(Project project) {
         project.plugins.withType(GradleFxPlugin) {
             configureIdeaProjectForGradleFx(project)
             configureIdeaModuleForGradleFx(project)
         }
     }
 
-    private configureIdeaProjectForGradleFx(Project project) {
+    protected configureIdeaProjectForGradleFx(Project project) {
         if (isRoot(project)) {
 //            project.idea.project.conventionMapping.languageLevel = {
 //                new IdeaLanguageLevel(project.sourceCompatibility)
@@ -162,7 +159,7 @@ class IdeaPlugin extends IdePlugin {
 
 
 
-    private configureIdeaGradleFxModule(Project project) {
+    protected configureIdeaGradleFxModule(Project project) {
         def task = project.task('ideaGradleFxModule', description: 'Generates IDEA module files (IML)', type: org.gradlefx.plugins.ide.idea.GenerateIdeaModule) {
 //        def task = project.task('ideaModule', description: 'Generates IDEA module files (IML)', type: GenerateIdeaModule) {
             def iml = new IdeaModuleIml(xmlTransformer, project.projectDir)

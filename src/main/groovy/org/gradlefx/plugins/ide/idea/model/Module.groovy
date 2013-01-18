@@ -17,48 +17,47 @@ import org.gradlefx.conventions.FlexType
  * Time: 1:25 AM
  * To change this template use File | Settings | File Templates.
  */
-class Module extends XmlPersistableConfigurationObject {
-    static final String INHERITED = "inherited"
+class Module extends org.gradle.plugins.ide.idea.model.Module {
+//    static final String INHERITED = "inherited"
 
 
 
 
-    /**
-     * The directory for the content root of the module.  Defaults to the project dirctory.
-     * If null, the directory containing the output file will be used.
-     */
-    Path contentPath
-
-    /**
-     * The directories containing the production sources. Must not be null.
-     */
-    Set<Path> sourceFolders = [] as LinkedHashSet
-
-    /**
-     * The directories containing the test sources. Must not be null.
-     */
-    Set<Path> testSourceFolders = [] as LinkedHashSet
-
-    /**
-     * The directories to be excluded. Must not be null.
-     */
-    Set<Path> excludeFolders = [] as LinkedHashSet
-
-    /**
-     * The dependencies of this module. Must not be null.
-     */
-    Set<Dependency> dependencies = [] as LinkedHashSet
+//    /**
+//     * The directory for the content root of the module.  Defaults to the project dirctory.
+//     * If null, the directory containing the output file will be used.
+//     */
+//    Path contentPath
+//
+//    /**
+//     * The directories containing the production sources. Must not be null.
+//     */
+//    Set<Path> sourceFolders = [] as LinkedHashSet
+//
+//    /**
+//     * The directories containing the test sources. Must not be null.
+//     */
+//    Set<Path> testSourceFolders = [] as LinkedHashSet
+//
+//    /**
+//     * The directories to be excluded. Must not be null.
+//     */
+//    Set<Path> excludeFolders = [] as LinkedHashSet
+//
+//    /**
+//     * The dependencies of this module. Must not be null.
+//     */
+//    Set<Dependency> dependencies = [] as LinkedHashSet
 
 
     Set<BuildConfiguration> buildConfigurations = [] as LinkedHashSet
 
-    String jdkName
-
-    private final PathFactory pathFactory
-
+//    String jdkName
+//
+//    private final PathFactory pathFactory
+//
     Module(XmlTransformer withXmlActions, PathFactory pathFactory) {
-        super(withXmlActions)
-        this.pathFactory = pathFactory
+        super(withXmlActions, pathFactory)
     }
 
     @Override
@@ -106,12 +105,12 @@ class Module extends XmlPersistableConfigurationObject {
         readBuildConfigurationsFromXml()
     }
 
-    private readJdkFromXml() {
-        def jdk = findOrderEntries().find { it.@type == 'jdk' }
-        jdkName = jdk ? jdk.@jdkName : INHERITED
-    }
-
-    private readSourceAndExcludeFolderFromXml() {
+//    private readJdkFromXml() {
+//        def jdk = findOrderEntries().find { it.@type == 'jdk' }
+//        jdkName = jdk ? jdk.@jdkName : INHERITED
+//    }
+//
+    protected readSourceAndExcludeFolderFromXml() {
         findSourceFolder().each { sourceFolder ->
             if (sourceFolder.@isTestSource == 'false') {
                 sourceFolders.add(pathFactory.path(sourceFolder.@url))
@@ -124,7 +123,7 @@ class Module extends XmlPersistableConfigurationObject {
         }
     }
 
-    private readDependenciesFromXml() {
+    protected readDependenciesFromXml() {
         return findOrderEntries().each { orderEntry ->
             switch (orderEntry.@type) {
                 case "module-library":
@@ -147,7 +146,7 @@ class Module extends XmlPersistableConfigurationObject {
         }
     }
 
-    private readBuildConfigurationsFromXml() {
+    protected readBuildConfigurationsFromXml() {
         findBuildConfigurations().each { configuration ->
             println configuration
             String name = configuration.@name
@@ -176,11 +175,11 @@ class Module extends XmlPersistableConfigurationObject {
         }
     }
 
-    private findBuildConfigurations() {
+    protected findBuildConfigurations() {
         findFlexBuildConfigurationManager().configurations.configuration
     }
 
-    private Node findFlexBuildConfigurationManager(){
+    protected Node findFlexBuildConfigurationManager(){
         xml.component.find { it.@name == 'FlexBuildConfigurationManager'}
     }
 
@@ -209,7 +208,7 @@ class Module extends XmlPersistableConfigurationObject {
         addDependenciesToXml()
     }
 
-    private addJdkToXml() {
+    protected addJdkToXml() {
         assert jdkName != null
         Node moduleJdk = findOrderEntries().find { it.@type == 'jdk' }
         if (jdkName != INHERITED) {
@@ -229,19 +228,19 @@ class Module extends XmlPersistableConfigurationObject {
         }
     }
 
-    private setContentURL() {
+    protected setContentURL() {
         if (contentPath != null) {
             findContent().@url = contentPath.url
         }
     }
 
-    private Set addDependenciesToXml() {
+    protected Set addDependenciesToXml() {
         return dependencies.each { Dependency dependency ->
             dependency.addToNode(findNewModuleRootManager())
         }
     }
 
-    private addSourceAndExcludeFolderToXml() {
+    protected addSourceAndExcludeFolderToXml() {
         sourceFolders.each { Path path ->
             findContent().appendNode('sourceFolder', [url: path.url, isTestSource: 'false'])
         }
@@ -253,7 +252,7 @@ class Module extends XmlPersistableConfigurationObject {
         }
     }
 
-    private removeSourceAndExcludeFolderFromXml() {
+    protected removeSourceAndExcludeFolderFromXml() {
         findSourceFolder().each { sourceFolder ->
             findContent().remove(sourceFolder)
         }
@@ -262,7 +261,7 @@ class Module extends XmlPersistableConfigurationObject {
         }
     }
 
-    private removeDependenciesFromXml() {
+    protected removeDependenciesFromXml() {
         return findOrderEntries().each { orderEntry ->
             if (isDependencyOrderEntry(orderEntry)) {
                 findNewModuleRootManager().remove(orderEntry)
@@ -274,23 +273,23 @@ class Module extends XmlPersistableConfigurationObject {
         ['module-library', 'module'].contains(orderEntry.@type)
     }
 
-    private Node findContent() {
+    protected Node findContent() {
         findNewModuleRootManager().content[0]
     }
 
-    private findSourceFolder() {
+    protected findSourceFolder() {
         findContent().sourceFolder
     }
 
-    private findExcludeFolder() {
+    protected findExcludeFolder() {
         findContent().excludeFolder
     }
 
-    private Node findNewModuleRootManager() {
+    protected Node findNewModuleRootManager() {
         xml.component.find { it.@name == 'NewModuleRootManager'}
     }
 
-    private findOrderEntries() {
+    protected findOrderEntries() {
         findNewModuleRootManager().orderEntry
     }
 
