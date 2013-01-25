@@ -14,4 +14,16 @@ class IdeafxPlugin implements Plugin<Project> {
     public void apply(Project project){
         project.apply(plugin: 'idea')
     }
+    Node findOrCreateFlexBuildConfigurationManagerComponent(Node iml) {
+        Node component = iml.find { it.@name == "FlexBuildConfigurationManager" }
+        if (!component) {
+            component = iml.appendNode('component', [name: 'FlexBuildConfigurationManager'])
+        }
+        Node configurations = component.configurations[0]
+        if (configurations) {
+            return configurations
+        }
+        configurations = component.appendNode('configurations')
+        return configurations
+    }
 }
